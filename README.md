@@ -1,2 +1,7 @@
 # K8S
-K8S repository for learn
+Exemplo usando __Kind__ na minha máquina
+
+1) Criar um cluster
+2) __kind create cluster__
+
+
