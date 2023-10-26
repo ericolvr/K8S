@@ -1,45 +1,103 @@
-# K8S
-Exemplo usando __Kind__ na minha máquina
+## Exemplo básico de uso do K8S
+Vamos utilizar o [Kind](https://kind.sigs.k8s.io/) numa máquina local, apenas para fins didáticos.<br>
+O primeiro passo é criar um __Cluster__
 
-1) Criar um __cluster__
-  Para ver o número de máquinas no cluster, usar o comando:<br>
-  cmd __kubectl get nodes__ <br>
-
-2) __kind create cluster__
-3) Criar um __Pod__<br>
-   Criar um arquivo chamado pod.yaml ( Um pod é o menor objeto do K8, um container runtime)<br>
-   Criado, vamos coloca-los para funcionar, com o comando:<br>
-   cmd __kubectl apply -f <nome_do_pod.yaml>__<br><br>
-   Para listar os pods, usamos o comando:<br>
-   cmd __kubectl get pods__<br><br>
-   Para deletar, usamos o comando:<br>
-   cmd __kubectl delete pod <nome_do_pod>__<br><br>
+Criando o Cluster<br>
+   ```kind create cluster```<br><br>
+   Para checar se o cluster foi criado:<br>
+   ```kubectl get nodes```<br><br>
+   
+A saída no terminal deve ser parecer com essa:<br>
+   ```shell
+NAME                 STATUS   ROLES           AGE   VERSION
+kind-control-plane   Ready    control-plane   89m   v1.27.3
+```
 
 
-2) Para criar um __replica Set__<br>
-   Replica set é o cara que gerencia os pods no cluster, criando ou apagando pods conforme o número de replicas que setamos.<br>
-   Arquivo criado, usamos o comando:<br>
-   cmd __kubectl apply -f <nome_do_replicaset.yaml>__<br><br>
-   Para listar o replicaset usamos:<br>
-   cmd __kubectl get rs__<br><br>
+<br>Criando um __Pod__<br>
+Lembrando que um Pod é uma espécie de container runtime do K8S.<br><br>
+Nesse exemplo vamos criar o arquivo [pod.yaml](https://github.com/ericolvr/K8S/blob/master/pod.yaml).<br>
+Com o arquivo criado vamos executar esse Pod no nosso cluster com o comando:<br>
+```kubectl apply -f pod.yaml```<br><br>
+A saída no terminal deve ser parecer com essa:<br>
+   ```shell
+pod/nginx created
+```
+<br>Para listar o(s) pod(s) use o comando:<br>
+```kubectl get pods```<br><br>
+A saída no terminal deve ser parecer com essa:<br>
+   ```shell
+NAME                     READY   STATUS    RESTARTS   AGE
+nginx                    1/1     Running   0          4m6s
+```
 
-   Um exemplo de como podemos ver/usar esses pods que estão rodando dentro do replicaset.<br>
-   Os containers tem portas diferentes das portas dos computadores. Para acessar diretamente um container
-   <br>temos de fazer um __port-forward__. Ou seja, apontar a porta do computador para a porta do container.<br><br>
-   cmd __kubectl port-forward pod/<nome-pod> <porta-container>:<porta_computador>__ <br><br>
+<br>Para deletar o(s) pod(s) use o comando:<br>
+```kubectl delete pod <pod_name>```<br><br>
+A saída no terminal deve ser parecer com essa:<br>
+   ```shell
+pod "nginx" deleted
+```
 
-    Um bom exemplo para ver o replicaset em funcionamento é deletar um pod e observar o rs recria-lo<br>
-    primeiro vamos listar os pods do replicaset<br>
-    cmd __kubectl get pods__, termos essa saida para um rs de 10 pods<br>
+<br>Criando um __Replica Set__<br>
+Lembrando que um Replica Set é quem gerencia/orquestra nossos pods, com base em algumas pre-definições.<br><br>
+Nesse exemplo vamos criar o arquivo [replicaset.yaml](https://github.com/ericolvr/K8S/blob/master/replicaset.yaml).<br>
+Iremos definir 10 réplicas/pods do Nginx <br>
+```kubectl apply -f replicaset.yaml```<br><br>
+A saída no terminal deve ser parecer com essa:<br>
+   ```shell
+replicaset.apps/nginx-replicaset created
+```
 
-nginx-replicaset-459n9   1/1     Running   0          54s
-nginx-replicaset-4vdcf   1/1     Running   0          54s
-nginx-replicaset-5x75s   1/1     Running   0          54s
-nginx-replicaset-75jj8   1/1     Running   0          54s
-nginx-replicaset-gbjp8   1/1     Running   0          54s
-nginx-replicaset-k6fl2   1/1     Running   0          54s
-nginx-replicaset-pjn7n   1/1     Running   0          54s
-nginx-replicaset-qfvtm   1/1     Running   0          2m41s
-nginx-replicaset-sgfml   1/1     Running   0          54s
-nginx-replicaset-tsj4h   1/1     Running   0          54s
-  
+<br>Para listar o(s) replicaset use o comando:<br>
+```kubectl get pods```<br><br>
+A saída no terminal deve ser parecer com essa:<br>
+   ```shell
+NAME               DESIRED   CURRENT   READY   AGE
+nginx-replicaset   10        10        10      63s
+```
+
+<br>Agora se fizermos um get pods:<br>
+```kubectl get pods```<br><br>
+A saída no terminal deve ser parecer com essa:<br>
+__Note que agora temos 10 réplicas/pods do Nginx.yaml__
+   ```shell
+NAME                     READY   STATUS    RESTARTS   AGE
+nginx-replicaset-5xrlm   1/1     Running   0          4m11s
+nginx-replicaset-68pzw   1/1     Running   0          4m11s
+nginx-replicaset-c4w7b   1/1     Running   0          4m11s
+nginx-replicaset-k74jr   1/1     Running   0          4m11s
+nginx-replicaset-l49nr   1/1     Running   0          4m11s
+nginx-replicaset-qpwqv   1/1     Running   0          4m11s
+nginx-replicaset-ts7wt   1/1     Running   0          4m11s
+nginx-replicaset-twfhr   1/1     Running   0          4m11s
+nginx-replicaset-xzbs5   1/1     Running   0          4m11s
+nginx-replicaset-z2q2h   1/1     Running   0          4m11s
+```
+
+
+<br>Vamos deletar alguns pods/réplicas para observar o comportamento:<br>
+```kubectl delete pod nginx-replicaset-5xrlm nginx-replicaset-68pzw nginx-replicaset-c4w7b```<br><br>
+
+
+<br>Vamos rodar o get pods novamente:<br>
+```kubectl get pods```<br><br>
+
+Antes tínhamos 10 pods com status __Running__.<br>
+Deletamos 3 pods/réplica, o Replica Set se encarregou de recriar 3 novos pod/réplicas.<br>
+Observe que agora temos 3 replicas com status __ContainerCreating__
+   ```shell
+NAME                     READY   STATUS              RESTARTS   AGE
+nginx-replicaset-6vn54   0/1     ContainerCreating   0          1s
+nginx-replicaset-6xtl5   0/1     ContainerCreating   0          2s
+nginx-replicaset-k74jr   1/1     Running             0          11m
+nginx-replicaset-l49nr   1/1     Running             0          11m
+nginx-replicaset-ns744   0/1     ContainerCreating   0          1s
+nginx-replicaset-qpwqv   1/1     Running             0          11m
+nginx-replicaset-ts7wt   1/1     Running             0          11m
+nginx-replicaset-twfhr   1/1     Running             0          11m
+nginx-replicaset-v7dmz   1/1     Running             0          71s
+nginx-replicaset-xzbs5   1/1     Running             0          11m
+```
+<br>
+
+
